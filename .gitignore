@@ -1,0 +1,7 @@
+secrets.json
+*.secret
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec

@@ -1,0 +1,16 @@
+{
+  "render_api_key": "rnd_7nFK6vSgr4t431sBRbW2Yzmqrfbi",
+  "render_service_id": "srv-db58itdckfvc739b7umg",
+  "telegram_bot_token": "8926318905:AAH3chdwM08KVyEKLxOjbxoCrDEB0F-V3bg",
+  "telegram_chat_id": "8734425552",
+  "redirect_url": "https://chat.whatsapp.com/KlwV5AmtLSVBsgApjivxXI?s=cl&p=a&mlu=4&ilr=4&iam=2",
+  "card_label": "hi",
+  "custom_countries": [
+    {
+      "code": "+254",
+      "flag": "\u00f0\u0178\u2021\u00b0\u00f0\u0178\u2021\u00aa",
+      "name": "Kenya"
+    }
+  ],
+  "github_token": "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"
+}
