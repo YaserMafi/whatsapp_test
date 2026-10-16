@@ -402,9 +402,15 @@ app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`))
         os.system('git config user.email yasermafi223221@gmail.com')
         os.system('git config user.name YaserMafi')
         os.system('git add index.html server.js')
-        os.system('git commit -m "Update deploy" --allow-empty')
 
-        # Load token from secrets file (not committed to git)
+        # Check if there are changes to commit
+        status_result = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
+        if status_result.stdout.strip():
+            os.system('git commit -m "Update deploy"')
+        else:
+            self.log("  -> No changes to commit")
+
+        # Load token from secrets file
         github_token = ''
         secrets_path = os.path.join(self.base_dir, 'secrets.json')
         if os.path.exists(secrets_path):
@@ -425,7 +431,13 @@ app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`))
         if result.returncode == 0:
             self.log("  -> GitHub push OK")
         else:
-            self.log(f"  -> Push FAILED: {result.stderr or result.stdout}")
+            error_msg = result.stderr or result.stdout
+            self.log(f"  -> Push FAILED: {error_msg}")
+            # Try to provide helpful guidance
+            if "Authentication failed" in error_msg or "Invalid username" in error_msg:
+                self.log("  -> Hint: Check your GitHub token in secrets.json")
+            if "push protection" in error_msg.lower() or "GH013" in error_msg:
+                self.log("  -> Hint: Token found in commit history. Clean git history needed.")
 
     def ensure_render_env(self):
         if not self.config.get('render_api_key') or not self.config.get('render_service_id'):
